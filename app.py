@@ -25,4 +25,4 @@ def graph():
         return render_template('graph.html', script1=script1, div1=div1, script2=script2, div2=div2)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=33507)
