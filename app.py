@@ -21,7 +21,7 @@ def graph():
     if request.method == 'GET':
         data_frame = fn.get_data_subset()
         script1, div1 = fn.generate_grid_scatter_plot(data_frame)
-        script2, div2 = fn.generate_grid_scatter_plot(data_frame)
+        script2, div2 = fn.generate_histogram_grid(data_frame)
         return render_template('graph.html', script1=script1, div1=div1, script2=script2, div2=div2)
 
 if __name__ == '__main__':

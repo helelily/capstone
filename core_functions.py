@@ -3,8 +3,8 @@ import pandas
 from bokeh.embed import components
 from bokeh.plotting import figure, gridplot
 from bokeh.models.formatters import NumeralTickFormatter
-from bokeh.io import output_notebook
 from bokeh.models import ColumnDataSource
+from bokeh.charts import Histogram
 
 BASE_URL = 'https://www.quandl.com/api/v3/datasets/WIKI/'
 API_KEY = {'api_key' : 'zxWzLABZi1kY_XvMCJys'}
@@ -52,4 +52,24 @@ def generate_grid_scatter_plot(data_frame):
     plot_quad = gridplot([[p1, p2], [p3, p4]])
 
     script, dev = components(plot_quad)
+    return script, dev
+
+
+def generate_histogram_grid(data_frame):
+    high_access = data_frame[data_frame['LowAccess_Pct'] <= data_frame['LowAccess_Pct'].quantile(0.65)]
+
+    upper = high_access[high_access['Diabetes_Pct'] >= high_access['Diabetes_Pct'].quantile(0.50)]
+    lower = high_access[high_access['Diabetes_Pct'] < high_access['Diabetes_Pct'].quantile(0.50)]
+
+    p2 = Histogram(lower, 'SpecialtyStores_PP', bins=100, width=600, plot_height=250)
+    p2.xaxis.axis_label = ''
+    p2.yaxis.axis_label = 'Low Diabetes Incidence'
+
+    p4 = Histogram(upper, 'SpecialtyStores_PP', bins=100, width=600, plot_height=250)
+    p4.xaxis.axis_label = 'Specialty Stores'
+    p4.yaxis.axis_label = 'High Diabetes Incidence'
+
+    plot_list = gridplot([[p2], [p4]])
+
+    script, dev = components(plot_list)
     return script, dev
