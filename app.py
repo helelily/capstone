@@ -7,25 +7,22 @@ app = Flask(__name__)
 def main():
     return redirect('/index')
 
+
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
         return render_template('index.html')
     else:
-        ticker = request.form['ticker']
-        features = request.form.getlist('features')
+        return render_template('error.html')
 
-        if  fn.form_inputs_are_valid(ticker, features):
-            json_response = fn.query_quandl_database(ticker)
 
-            if fn.quandl_result_is_valid(json_response):
-                data_frame = fn.get_data_subset(json_response, features)
-                script, div = fn.generate_plot_components(data_frame)
-                return render_template('graph.html', script=script, div=div, ticker=ticker)
-            else:
-                return render_template('error.html')
-        else:
-            return render_template('error.html')
+@app.route('/graph', methods=['GET', 'POST'])
+def graph():
+    if request.method == 'GET':
+        data_frame = fn.get_data_subset()
+        script1, div1 = fn.generate_grid_scatter_plot(data_frame)
+        script2, div2 = fn.generate_grid_scatter_plot(data_frame)
+        return render_template('graph.html', script1=script1, div1=div1, script2=script2, div2=div2)
 
 if __name__ == '__main__':
     app.run()

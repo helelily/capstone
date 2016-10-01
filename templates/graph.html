@@ -2,19 +2,45 @@
 <html lang="en">
   <head>
       <meta charset="utf-8">
-      <title>Generated graph for {{ticker}}</title>
+      <title>Generated graph for me</title>
       <link rel="stylesheet" href="//cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.css" type="text/css" />
       <script type="text/javascript" src="//cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.js"></script>
-      {{ script | safe }}
+      {{ script1 | safe }}
+      <script type="text/javascript" src="//cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.js"></script>
+      {{ script2 | safe }}
   </head>
   <body>
     <div class=page>
       <h1>
-          Generated graph for {{ticker}}
+          Generated graph for me
           <br>
-          <a href="/index">Back</a>
       </h1>
-      {{ div | safe }}
+      {{ div1 | safe }}
+    </div>
+    <div class=page>
+      <h1>
+          Dupe graph
+          <br>
+      </h1>
+      {{ div2 | safe }}
+    </div>
+    <div class=page>
+      <h1>
+          Diabetes Incidence in the United States
+          <br>
+      </h1>
+      <iframe
+              width="100%"
+              height="520"
+              frameborder="0"
+              src="https://helelily.carto.com/viz/66be397a-800a-11e6-ba03-0e233c30368f/embed_map"
+              allowfullscreen
+              webkitallowfullscreen
+              mozallowfullscreen
+              oallowfullscreen
+              msallowfullscreen>
+      </iframe>
+      <a href="/index">Back</a>
     </div>
   </body>
 </html>

@@ -1,63 +1,55 @@
 import requests
 import pandas
-from bokeh.palettes import BrBG9
-from bokeh.plotting import figure, show
 from bokeh.embed import components
+from bokeh.plotting import figure, gridplot
+from bokeh.models.formatters import NumeralTickFormatter
+from bokeh.io import output_notebook
+from bokeh.models import ColumnDataSource
 
 BASE_URL = 'https://www.quandl.com/api/v3/datasets/WIKI/'
 API_KEY = {'api_key' : 'zxWzLABZi1kY_XvMCJys'}
 
 
-def form_inputs_are_valid(ticker, features):
-    if ticker and len(features) > 0:
-        return True
-
-    return False
-
-
-def query_quandl_database(ticker):
-    request_url = BASE_URL + ticker + '.json'
-    session = requests.Session()
-    session.mount('https://', requests.adapters.HTTPAdapter(max_retries=3))
-    response = session.get(request_url, params=API_KEY)
-    json_response = response.json()
-
-    return json_response
-
-
-def quandl_result_is_valid(json_response):
-    response_key = json_response.keys()
-    if not response_key:
-        return False
-
-    first_key = response_key[0]
-    if first_key == 'dataset':
-        return True
-
-    return False
-
-def get_data_subset(json_response, features):
-    headers = json_response['dataset']['column_names']
-    data_table = json_response['dataset']['data']
-    data_frame = pandas.DataFrame(data_table, columns=headers)
-    data_frame = data_frame.set_index('Date')
-    data_frame = data_frame[features]
+def get_data_subset():
+    data_frame = pandas.read_pickle('final_data_clean.p')
     return data_frame
 
 
-def generate_plot_components(data_frame):
-    TOOLS = 'pan,wheel_zoom,box_zoom,reset,resize,save'
-    plot = figure(x_axis_type ='datetime', tools=TOOLS)
-    plot.title.text = 'Data from Quandle WIKI set'
-    plot.grid.grid_line_alpha=0.3
-    plot.xaxis.axis_label = 'Date'
-    plot.yaxis.axis_label = 'Price'
-    my_palette = BrBG9[0:len(data_frame.columns)]
-    i = 0
-    dates = pandas.to_datetime(data_frame.index.values)
-    for column in data_frame:
-        plot.line(dates, data_frame[column], line_color = my_palette[i], legend=column)
-        i+= 1
+def generate_grid_scatter_plot(data_frame):
+    y = data_frame['Diabetes_Pct'].values
+    x1 = data_frame['Black_Pct'].values
+    x2 = data_frame['Hispanic_Pct'].values
+    x3 = data_frame['LowAccess_Pct'].values
+    x4 = data_frame['HouseholdIncome'].values
 
-    script, dev = components(plot)
+    source = ColumnDataSource(data=dict(y=y, x1=x1, x2=x2, x3=x3, x4=x4))
+
+    TOOLS = "crosshair,wheel_zoom,reset,tap,pan,box_select"
+
+    p1 = figure(tools=TOOLS, width=300, plot_height=250, x_range=(-.04, 1.08), y_range=(0, 0.21))
+    p1.scatter('x1', 'y', source=source, fill_alpha=0.8, line_color=None)
+    p1.xaxis.axis_label = 'Percent Black'
+    p1.yaxis[0].formatter = NumeralTickFormatter(format="0.0%")
+    p1.xaxis[0].formatter = NumeralTickFormatter(format="0.0%")
+
+    p2 = figure(tools=TOOLS, width=300, plot_height=250, x_range=(-.04, 1.08), y_range=(0, 0.21))
+    p2.scatter('x2', 'y', source=source, fill_alpha=0.8, line_color=None)
+    p2.xaxis.axis_label = 'Percent Hispanic'
+    p2.yaxis[0].formatter = NumeralTickFormatter(format="0.0%")
+    p2.xaxis[0].formatter = NumeralTickFormatter(format="0.0%")
+
+    p3 = figure(tools=TOOLS, width=300, plot_height=250, x_range=(-.04, 1.08), y_range=(0, 0.21))
+    p3.scatter('x3', 'y', source=source, fill_alpha=0.8, line_color=None)
+    p3.xaxis.axis_label = 'Low Access Population'
+    p3.yaxis[0].formatter = NumeralTickFormatter(format="0.0%")
+    p3.xaxis[0].formatter = NumeralTickFormatter(format="0.0%")
+
+    p4 = figure(tools=TOOLS, width=300, plot_height=250, x_range=(9.8, 11.8), y_range=(0, 0.21))
+    p4.scatter('x4', 'y', source=source, fill_alpha=0.8, line_color=None)
+    p4.xaxis.axis_label = 'Household Income (log scale)'
+    p4.yaxis[0].formatter = NumeralTickFormatter(format="0.0%")
+
+    plot_quad = gridplot([[p1, p2], [p3, p4]])
+
+    script, dev = components(plot_quad)
     return script, dev
